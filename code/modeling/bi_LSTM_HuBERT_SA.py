@@ -1,3 +1,4 @@
+import os
 import pandas as pd
 import numpy as np
 from sklearn.preprocessing import LabelEncoder, StandardScaler
@@ -12,16 +13,32 @@ from tensorflow.keras.callbacks import (
     EarlyStopping, ReduceLROnPlateau, ModelCheckpoint
 )
 
-# Load the data.
-df = pd.read_csv('hubert_self_attentive_features.csv')
+# Locate the directory of the current script.
+script_dir = os.path.dirname(__file__)
+repo_root = os.path.abspath(os.path.join(script_dir, os.pardir, os.pardir))
+csv_path = os.path.join(repo_root, "data", "processed", "hubert_self_attentive_features.csv")
+
+# Read the features.
+df = pd.read_csv(csv_path)
 
 # Set train/test patient_number.
-test_ids = [1981, 68, 11, 1159, 2097]
-train_ids = [
-    1205, 1449, 15, 29, 32, 4, 40, 41, 43, 5, 53, 59, 60, 61, 63, 66, 67,
-    69, 74, 9, 1197, 1203, 1694, 1819, 2121, 2377, 2509, 2564, 2596, 2601,
-    816, 846
-]
+train_path = os.path.join(repo_root, "data", "train1.txt")
+test_path  = os.path.join(repo_root, "data", "test1.txt")
+
+# Read the patient_number of each row and convert it into an integer list.
+with open(train_path, "r", encoding="utf-8") as f:
+    train_ids = [
+        int(line.strip())
+        for line in f
+        if line.strip() != ""
+    ]
+
+with open(test_path, "r", encoding="utf-8") as f:
+    test_ids = [
+        int(line.strip())
+        for line in f
+        if line.strip() != ""
+    ]
 
 df_train = df[df['patient_number'].isin(train_ids)].reset_index(drop=True)
 df_test  = df[df['patient_number'].isin(test_ids)].reset_index(drop=True)
